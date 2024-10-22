@@ -11,6 +11,19 @@ CONFLUENCE_USERNAME = os.getenv('CONFLUENCE_USERNAME')
 CONFLUENCE_API_TOKEN = os.getenv('CONFLUENCE_API_TOKEN')
 CONFLUENCE_SPACE_KEY = os.getenv('CONFLUENCE_SPACE_KEY')
 
+# Check if any environment variable is missing
+if not CONFLUENCE_URL:
+    CONFLUENCE_URL = input("Enter the Confluence URL (e.g. https://{name}.atlassian.net/wiki) : ")
+
+if not CONFLUENCE_USERNAME:
+    CONFLUENCE_USERNAME = input("Enter your Confluence username: ")
+
+if not CONFLUENCE_API_TOKEN:
+    CONFLUENCE_API_TOKEN = input("Enter your Confluence API token: ")
+
+if not CONFLUENCE_SPACE_KEY:
+    CONFLUENCE_SPACE_KEY = input("Enter your Confluence space key: ")
+
 # Initialize Confluence client
 class ConfluenceLabelManager:
     def __init__(self):
@@ -96,4 +109,4 @@ if __name__ == "__main__":
         # List all pages that were labeled during the process
         label_manager.list_labeled_pages()
     else:
-        print("Invalid page selection.")
+        print("Invalid page selection.") 
