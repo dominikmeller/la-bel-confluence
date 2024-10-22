@@ -8,6 +8,10 @@ __pycache__/
 
 # env
 .env
+
+#scripts
+.sh
+
 # Distribution / packaging
 .Python
 build/
