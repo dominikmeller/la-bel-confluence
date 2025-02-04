@@ -1,18 +1,19 @@
-# la-bel-confluence or How to bulk add labels to Confluence pages?
+# la-bel-confluence: Bulk Add and Remove Labels from Confluence Pages
 
 ## The Story
 
-I needed to label some Confluence pages to prepare my space for RAG (Retrieval-Augmented Generation), and honestly, I wasn't in the mood to click through endless Confluence menus. So, staying true to my API-first nature, I wrote this script called **la-bel-confluence** to help manage the process easily and programmatically.
+I needed to manage labels on Confluence pages to prepare my space for RAG (Retrieval-Augmented Generation), and honestly, I wasn't in the mood to click through endless Confluence menus. So, staying true to my API-first nature, I wrote this script called **la-bel-confluence** to help manage the process easily and programmatically.
 
-Now, instead of manually adding labels one by one, this script does all the heavy lifting for me, cascading labels to all child pages automatically. It's perfect if you, like me, want to get things done with minimal effort.
+Now, instead of manually adding or removing labels one by one, this script does all the heavy lifting for me, cascading label additions to all child pages automatically and allowing bulk removal of labels across the entire space. It's perfect if you, like me, want to get things done with minimal effort.
 
 ## What Does It Do?
 
 **la-bel-confluence** is a Python script that:
 
-- Adds labels to a selected Confluence page.
-- Propagates those labels to all child pages.
+- Adds labels to a selected Confluence page and propagates those labels to all child pages.
+- Removes labels from all pages in a Confluence space.
 - Allows you to add multiple labels by using spaces.
+- Lists all labels in the space, sorted by occurrence.
 
 It's designed to either configure itself using a `.env` file or ask for your credentials interactively, making it very easy to set up and use.
 
@@ -56,13 +57,27 @@ It's designed to either configure itself using a `.env` file or ask for your cre
    python la-bel-confluence.py
    ```
 
-   - You'll be prompted to select a top-level page from your Confluence space.
-   - Enter the label you want to add.
-   - You can add multiple labels by separating them with a space.
-   
-5. **Label Cascade**
+5. **Choose Operation**
 
-   After selecting a page, the script will apply the specified labels to the page and then propagate them to all its child pages. At the end of the process, it will also list all the pages that received the new label(s).
+   - You'll be prompted to choose between adding (A) or removing (R) labels.
+
+6. **Adding Labels**
+
+   If you choose to add labels:
+   - Select a top-level page from your Confluence space.
+   - Enter the label(s) you want to add. You can add multiple labels by separating them with a space.
+   - The script will apply the specified labels to the selected page and then propagate them to all its child pages.
+   - At the end of the process, it will list all the pages that received the new label(s).
+
+7. **Removing Labels**
+
+   If you choose to remove labels:
+   - The script will display a list of all labels in the Confluence space, sorted by occurrence.
+   - Enter the number corresponding to the label you want to remove.
+   - Confirm the removal when prompted.
+   - The script will remove the selected label from all pages in the space.
+
+   **Caution**: The label removal feature will remove the selected label from ALL pages in the specified Confluence space. Use this feature with care.
 
 ## Contributing
 
