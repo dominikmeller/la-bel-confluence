@@ -91,7 +91,7 @@ class ConfluenceLabelManager:
             start = 0
             limit = 200
             while True:
-                url = f"{self.confluence.url}rest/api/content?spaceKey={self.space_key}&expand=metadata.labels&start={start}&limit={limit}"
+                url = f"rest/api/content?spaceKey={self.space_key}&expand=metadata.labels&start={start}&limit={limit}"
                 response = self.confluence.get(url)
                 
                 if not response or 'results' not in response:
