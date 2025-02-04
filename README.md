@@ -74,6 +74,18 @@ Feel free to fork the repository and create pull requests if you have ideas for 
 
 MIT License. Do whatever you want, but please don't blame me if Confluence gets angry about too many API calls ;)
 
+## New Feature: Label Removal
+
+In addition to adding labels, this script now allows you to remove labels from all pages in a Confluence space:
+
+1. Run the script and choose 'R' when prompted to remove labels.
+2. The script will display a list of all labels in the Confluence space, sorted by occurrence.
+3. Enter the number corresponding to the label you want to remove.
+4. Confirm the removal when prompted.
+5. The script will remove the selected label from all pages in the space.
+
+**Caution**: The label removal feature will remove the selected label from ALL pages in the specified Confluence space. Use this feature with care.
+
 ---
 
 Enjoy automating Confluence without leaving your terminal!
