@@ -122,7 +122,7 @@ class ConfluenceLabelManager:
         print("\nAll labels sorted by occurrence:")
         for i, (label_key, count) in enumerate(sorted_labels, 1):
             label_id, label_name = label_key.split(':', 1)
-            print(f"{i}. ID: {label_id}, Name: {label_name}, Count: {count}")
+            print(f"{i}. {label_name}, ID: {label_id}, Count: {count}")
         return sorted_labels
 
 def get_user_action():
