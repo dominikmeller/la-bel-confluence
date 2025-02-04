@@ -85,6 +85,28 @@ class ConfluenceLabelManager:
         for title in self.labeled_pages:
             print(f"- {title}")
 
+    def get_all_labels(self):
+        try:
+            all_labels = {}
+            pages = self.confluence.get_all_pages_from_space(self.space_key, start=0, limit=None)
+            for page in pages:
+                labels = self.confluence.get_page_labels(page['id'])
+                for label in labels:
+                    label_name = label['name']
+                    all_labels[label_name] = all_labels.get(label_name, 0) + 1
+            return all_labels
+        except Exception as e:
+            print(f"Error fetching labels: {e}")
+            return {}
+
+    def list_labels_sorted(self):
+        all_labels = self.get_all_labels()
+        sorted_labels = sorted(all_labels.items(), key=lambda x: x[1], reverse=True)
+        print("\nAll labels sorted by occurrence:")
+        for i, (label, count) in enumerate(sorted_labels, 1):
+            print(f"{i}. {label}: {count}")
+        return sorted_labels
+
 def get_user_action():
     while True:
         action = input("Do you want to (A)dd or (R)emove labels? ").lower()
@@ -122,5 +144,8 @@ if __name__ == "__main__":
             print("Invalid page selection.")
     
     elif action == 'r':
-        print("Label removal functionality is not yet implemented.")
+        print("Listing all labels in the Confluence space...")
+        sorted_labels = label_manager.list_labels_sorted()
+        if not sorted_labels:
+            print("No labels found in the Confluence space.")
         # TODO: Implement label removal functionality
