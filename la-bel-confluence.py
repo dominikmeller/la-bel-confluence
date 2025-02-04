@@ -89,22 +89,26 @@ class ConfluenceLabelManager:
         try:
             all_labels = {}
             start = 0
-            limit = 100
+            limit = 200
             while True:
-                pages = self.confluence.get_all_pages_from_space(self.space_key, start=start, limit=limit)
-                if not pages:
+                url = f"{self.confluence.url}rest/api/content/{self.space_key}/label?start={start}&limit={limit}"
+                response = self.confluence.get(url)
+                
+                if not response or 'results' not in response:
                     break
-                for page in pages:
-                    labels = self.confluence.get_page_labels(page['id'])
-                    for label in labels:
-                        if isinstance(label, dict) and 'name' in label:
-                            label_name = label['name']
-                        elif isinstance(label, str):
-                            label_name = label
-                        else:
-                            label_name = str(label)
-                        all_labels[label_name] = all_labels.get(label_name, 0) + 1
+                
+                for label in response['results']:
+                    label_id = label.get('id')
+                    label_name = label.get('name')
+                    if label_id and label_name:
+                        key = f"{label_id}:{label_name}"
+                        all_labels[key] = all_labels.get(key, 0) + 1
+                
+                if len(response['results']) < limit:
+                    break
+                
                 start += limit
+
             return all_labels
         except Exception as e:
             print(f"Error fetching labels: {e}")
@@ -114,8 +118,9 @@ class ConfluenceLabelManager:
         all_labels = self.get_all_labels()
         sorted_labels = sorted(all_labels.items(), key=lambda x: x[1], reverse=True)
         print("\nAll labels sorted by occurrence:")
-        for i, (label, count) in enumerate(sorted_labels, 1):
-            print(f"{i}. {label}: {count}")
+        for i, (label_key, count) in enumerate(sorted_labels, 1):
+            label_id, label_name = label_key.split(':', 1)
+            print(f"{i}. ID: {label_id}, Name: {label_name}, Count: {count}")
         return sorted_labels
 
 def get_user_action():
