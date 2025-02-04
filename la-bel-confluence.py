@@ -88,15 +88,18 @@ class ConfluenceLabelManager:
     def get_all_labels(self):
         try:
             all_labels = {}
-            pages = self.confluence.get_all_pages_from_space(self.space_key, start=0, limit=None)
-            for page in pages:
-                labels = self.confluence.get_page_labels(page['id'])
-                for label in labels:
-                    if isinstance(label, dict) and 'name' in label:
+            start = 0
+            limit = 100
+            while True:
+                pages = self.confluence.get_all_pages_from_space(self.space_key, start=start, limit=limit)
+                if not pages:
+                    break
+                for page in pages:
+                    labels = self.confluence.get_page_labels(page['id'])
+                    for label in labels:
                         label_name = label['name']
-                    else:
-                        label_name = str(label)
-                    all_labels[label_name] = all_labels.get(label_name, 0) + 1
+                        all_labels[label_name] = all_labels.get(label_name, 0) + 1
+                start += limit
             return all_labels
         except Exception as e:
             print(f"Error fetching labels: {e}")
