@@ -92,7 +92,10 @@ class ConfluenceLabelManager:
             for page in pages:
                 labels = self.confluence.get_page_labels(page['id'])
                 for label in labels:
-                    label_name = label['name']
+                    if isinstance(label, dict) and 'name' in label:
+                        label_name = label['name']
+                    else:
+                        label_name = str(label)
                     all_labels[label_name] = all_labels.get(label_name, 0) + 1
             return all_labels
         except Exception as e:
