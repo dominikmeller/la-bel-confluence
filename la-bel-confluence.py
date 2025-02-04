@@ -85,28 +85,42 @@ class ConfluenceLabelManager:
         for title in self.labeled_pages:
             print(f"- {title}")
 
+def get_user_action():
+    while True:
+        action = input("Do you want to (A)dd or (R)emove labels? ").lower()
+        if action in ['a', 'r']:
+            return action
+        print("Invalid choice. Please enter 'A' for Add or 'R' for Remove.")
+
 if __name__ == "__main__":
     label_manager = ConfluenceLabelManager()
 
-    # List top-level pages
-    top_level_pages = label_manager.list_top_level_pages()
-    if not top_level_pages:
-        print("No top-level pages to label.")
-        exit()
+    action = get_user_action()
 
-    # Display pages for selection
-    for i, page in enumerate(top_level_pages):
-        print(f"{i}: {page['title']}")
+    if action == 'a':
+        # Existing functionality for adding labels
+        top_level_pages = label_manager.list_top_level_pages()
+        if not top_level_pages:
+            print("No top-level pages to label.")
+            exit()
 
-    # Get user input for page and label
-    selected_page_index = int(input("Enter the number of the top-level page you want to label: "))
-    label = input("Enter the label you want to add: ")
+        # Display pages for selection
+        for i, page in enumerate(top_level_pages):
+            print(f"{i}: {page['title']}")
 
-    # Validate user input
-    if 0 <= selected_page_index < len(top_level_pages):
-        selected_page = top_level_pages[selected_page_index]
-        label_manager.cascade_labels(selected_page, label)
-        # List all pages that were labeled during the process
-        label_manager.list_labeled_pages()
-    else:
-        print("Invalid page selection.") 
+        # Get user input for page and label
+        selected_page_index = int(input("Enter the number of the top-level page you want to label: "))
+        label = input("Enter the label you want to add: ")
+
+        # Validate user input
+        if 0 <= selected_page_index < len(top_level_pages):
+            selected_page = top_level_pages[selected_page_index]
+            label_manager.cascade_labels(selected_page, label)
+            # List all pages that were labeled during the process
+            label_manager.list_labeled_pages()
+        else:
+            print("Invalid page selection.")
+    
+    elif action == 'r':
+        print("Label removal functionality is not yet implemented.")
+        # TODO: Implement label removal functionality
