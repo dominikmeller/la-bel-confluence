@@ -18,9 +18,6 @@ if not CONFLUENCE_USERNAME:
     CONFLUENCE_USERNAME = input("Enter your Confluence username: ")
 if not CONFLUENCE_API_TOKEN:
     CONFLUENCE_API_TOKEN = input("Enter your Confluence API token: ")
-if not CONFLUENCE_SPACE_KEY:
-    CONFLUENCE_SPACE_KEY = input("Enter your Confluence space key: ")
-
 >>>>>>> Stashed changes
 
 =======
