@@ -21,20 +21,7 @@ if not CONFLUENCE_API_TOKEN:
 if not CONFLUENCE_SPACE_KEY:
     CONFLUENCE_SPACE_KEY = input("Enter your Confluence space key: ")
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-# Check if any environment variable is missing
-if not CONFLUENCE_URL:
-    CONFLUENCE_URL = input("Enter the Confluence URL (e.g. https://{name}.atlassian.net/wiki) : ")
-
-if not CONFLUENCE_USERNAME:
-    CONFLUENCE_USERNAME = input("Enter your Confluence username: ")
-
-if not CONFLUENCE_API_TOKEN:
-    CONFLUENCE_API_TOKEN = input("Enter your Confluence API token: ")
-
-if not CONFLUENCE_SPACE_KEY:
-    CONFLUENCE_SPACE_KEY = input("Enter your Confluence space key: ")
+>>>>>>> Stashed changes
 
 =======
 >>>>>>> Stashed changes
