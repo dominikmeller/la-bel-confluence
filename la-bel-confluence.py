@@ -119,6 +119,36 @@ class ConfluenceLabelManager:
             print(f"{i}. {label_name}, ID: {label_id}, Count: {count}")
         return sorted_labels
 
+    def remove_label_from_all_pages(self, label_id, label_name):
+        try:
+            start = 0
+            limit = 200
+            removed_count = 0
+            while True:
+                url = f"rest/api/content?spaceKey={self.space_key}&expand=metadata.labels&start={start}&limit={limit}"
+                response = self.confluence.get(url)
+                
+                if not response or 'results' not in response:
+                    break
+                
+                for content in response['results']:
+                    content_id = content['id']
+                    labels = content.get('metadata', {}).get('labels', {}).get('results', [])
+                    for label in labels:
+                        if label.get('id') == label_id and label.get('name') == label_name:
+                            self.confluence.remove_page_label(content_id, label_name)
+                            removed_count += 1
+                            print(f"Removed label '{label_name}' from page {content['title']} (ID: {content_id})")
+                
+                if len(response['results']) < limit:
+                    break
+                
+                start += limit
+
+            print(f"\nTotal labels removed: {removed_count}")
+        except Exception as e:
+            print(f"Error removing labels: {e}")
+
 def get_user_action():
     while True:
         action = input("Do you want to (A)dd or (R)emove labels? ").lower()
