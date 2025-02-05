@@ -16,12 +16,7 @@ if not CONFLUENCE_URL:
     CONFLUENCE_URL = input("Enter the Confluence URL (e.g. https://{name}.atlassian.net/wiki): ")
 if not CONFLUENCE_USERNAME:
     CONFLUENCE_USERNAME = input("Enter your Confluence username: ")
->>>>>>> Stashed changes
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 # Initialize Confluence client
 class ConfluenceLabelManager:
     def __init__(self):
@@ -83,17 +78,10 @@ class ConfluenceLabelManager:
         print("\nPages that were given the new label(s):")
         for title in self.labeled_pages:
             print(f"- {title}")
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 
 if __name__ == "__main__":
     label_manager = ConfluenceLabelManager()
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     action = get_user_action()
 
     if action == 'a':
@@ -142,32 +130,3 @@ if __name__ == "__main__":
                         print("Invalid label number. Please try again.")
                 except ValueError:
                     print("Invalid input. Please enter a number.")
-=======
-=======
->>>>>>> Stashed changes
-    # List top-level pages
-    top_level_pages = label_manager.list_top_level_pages()
-    if not top_level_pages:
-        print("No top-level pages to label.")
-        exit()
-
-    # Display pages for selection
-    for i, page in enumerate(top_level_pages):
-        print(f"{i}: {page['title']}")
-
-    # Get user input for page and label
-    selected_page_index = int(input("Enter the number of the top-level page you want to label: "))
-    label = input("Enter the label you want to add: ")
-
-    # Validate user input
-    if 0 <= selected_page_index < len(top_level_pages):
-        selected_page = top_level_pages[selected_page_index]
-        label_manager.cascade_labels(selected_page, label)
-        # List all pages that were labeled during the process
-        label_manager.list_labeled_pages()
-    else:
-        print("Invalid page selection.")
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
