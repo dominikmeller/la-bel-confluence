@@ -79,6 +79,12 @@ class ConfluenceLabelManager:
         for title in self.labeled_pages:
             print(f"- {title}")
 
+def get_user_action():
+    while True:
+        action = input("Do you want to (A)dd or (R)emove labels? ").lower()
+        if action in ['a', 'r']:
+            return action
+        print("Invalid choice. Please enter 'A' for Add or 'R' for Remove.")
 
 if __name__ == "__main__":
     label_manager = ConfluenceLabelManager()
