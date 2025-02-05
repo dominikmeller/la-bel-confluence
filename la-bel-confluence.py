@@ -12,6 +12,7 @@ CONFLUENCE_API_TOKEN = os.getenv('CONFLUENCE_API_TOKEN')
 CONFLUENCE_SPACE_KEY = os.getenv('CONFLUENCE_SPACE_KEY')
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # Check if any environment variable is missing
 if not CONFLUENCE_URL:
     CONFLUENCE_URL = input("Enter the Confluence URL (e.g. https://{name}.atlassian.net/wiki) : ")
@@ -25,6 +26,8 @@ if not CONFLUENCE_API_TOKEN:
 if not CONFLUENCE_SPACE_KEY:
     CONFLUENCE_SPACE_KEY = input("Enter your Confluence space key: ")
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 # Initialize Confluence client
@@ -87,6 +90,7 @@ class ConfluenceLabelManager:
         print("\nPages that were given the new label:")
         for title in self.labeled_pages:
             print(f"- {title}")
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 
     def get_all_labels(self):
@@ -167,10 +171,13 @@ def get_user_action():
         print("Invalid choice. Please enter 'A' for Add or 'R' for Remove.")
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 if __name__ == "__main__":
     label_manager = ConfluenceLabelManager()
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     action = get_user_action()
 
@@ -221,6 +228,8 @@ if __name__ == "__main__":
                 except ValueError:
                     print("Invalid input. Please enter a number.")
 =======
+=======
+>>>>>>> Stashed changes
     # List top-level pages
     top_level_pages = label_manager.list_top_level_pages()
     if not top_level_pages:
@@ -243,4 +252,7 @@ if __name__ == "__main__":
         label_manager.list_labeled_pages()
     else:
         print("Invalid page selection.")
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
