@@ -11,6 +11,16 @@ CONFLUENCE_USERNAME = os.getenv('CONFLUENCE_USERNAME')
 CONFLUENCE_API_TOKEN = os.getenv('CONFLUENCE_API_TOKEN')
 CONFLUENCE_SPACE_KEY = os.getenv('CONFLUENCE_SPACE_KEY')
 
+# Check if any environment variable is missing and prompt for input if necessary
+if not CONFLUENCE_URL:
+    CONFLUENCE_URL = input("Enter the Confluence URL (e.g. https://{name}.atlassian.net/wiki): ")
+if not CONFLUENCE_USERNAME:
+    CONFLUENCE_USERNAME = input("Enter your Confluence username: ")
+if not CONFLUENCE_API_TOKEN:
+    CONFLUENCE_API_TOKEN = input("Enter your Confluence API token: ")
+if not CONFLUENCE_SPACE_KEY:
+    CONFLUENCE_SPACE_KEY = input("Enter your Confluence space key: ")
+
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 # Check if any environment variable is missing
@@ -33,19 +43,23 @@ if not CONFLUENCE_SPACE_KEY:
 # Initialize Confluence client
 class ConfluenceLabelManager:
     def __init__(self):
-        self.confluence = Confluence(
-            url=CONFLUENCE_URL,
-            username=CONFLUENCE_USERNAME,
-            password=CONFLUENCE_API_TOKEN
-        )
-        self.space_key = CONFLUENCE_SPACE_KEY
-        self.labeled_pages = []  # To keep track of all pages labeled during the process
+        try:
+            self.confluence = Confluence(
+                url=CONFLUENCE_URL,
+                username=CONFLUENCE_USERNAME,
+                password=CONFLUENCE_API_TOKEN
+            )
+            self.space_key = CONFLUENCE_SPACE_KEY
+            self.labeled_pages = []  # To keep track of all pages labeled during the process
+        except Exception as e:
+            print(f"Error initializing Confluence client: {e}")
+            exit(1)
 
     def list_top_level_pages(self):
         try:
             pages = self.confluence.get_all_pages_from_space(self.space_key, start=0, limit=1000)
             if not pages:
-                print("No pages found.")
+                print("No pages found in the specified space.")
                 return []
             return pages
         except Exception as e:
@@ -57,37 +71,34 @@ class ConfluenceLabelManager:
             response = self.confluence.set_page_label(page_id, label)
             if response:
                 page_info = self.confluence.get_page_by_id(page_id)
-                self.labeled_pages.append(page_info['title'])  # Add title of the page to labeled_pages
-                print(f"Label '{label}' added to page {page_info['title']} (ID: {page_id}).")
+                self.labeled_pages.append(page_info['title'])
+                print(f"Label '{label}' added to page '{page_info['title']}' (ID: {page_id}).")
             else:
-                print(f"Failed to add label to page {page_id}.")
+                print(f"Failed to add label '{label}' to page (ID: {page_id}).")
         except Exception as e:
-            print(f"Error adding label: {e}")
+            print(f"Error adding label '{label}' to page (ID: {page_id}): {e}")
 
-    def cascade_labels(self, top_level_page, label):
-        # Add label to the top-level page
-        self.add_label_to_page(top_level_page['id'], label)
+    def cascade_labels(self, top_level_page, labels):
+        print(f"\nAdding labels to '{top_level_page['title']}' and its child pages...")
+        for label in labels:
+            self.add_label_to_page(top_level_page['id'], label)
+        self.add_labels_to_children(top_level_page['id'], labels)
 
-        # Recursively add label to all child pages
-        self.add_labels_to_children(top_level_page['id'], label)
-
-    def add_labels_to_children(self, page_id, label):
+    def add_labels_to_children(self, page_id, labels):
         try:
             children = self.confluence.get_page_child_by_type(page_id, type='page', start=0, limit=1000)
             if not children:
                 return
 
             for child in children:
-                # Add label to each child page
-                self.add_label_to_page(child['id'], label)
-                
-                # Recursively add labels to this child's children
-                self.add_labels_to_children(child['id'], label)
+                for label in labels:
+                    self.add_label_to_page(child['id'], label)
+                self.add_labels_to_children(child['id'], labels)
         except Exception as e:
-            print(f"Error fetching child pages for page {page_id}: {e}")
+            print(f"Error fetching child pages for page (ID: {page_id}): {e}")
 
     def list_labeled_pages(self):
-        print("\nPages that were given the new label:")
+        print("\nPages that were given the new label(s):")
         for title in self.labeled_pages:
             print(f"- {title}")
 <<<<<<< Updated upstream
