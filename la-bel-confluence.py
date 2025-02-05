@@ -57,6 +57,7 @@ class ConfluenceLabelManager:
 
     def cascade_labels(self, top_level_page, labels):
         print(f"\nAdding labels to '{top_level_page['title']}' and its child pages...")
+        labels = labels.split()  # Split the input string into a list of labels
         for label in labels:
             self.add_label_to_page(top_level_page['id'], label)
         self.add_labels_to_children(top_level_page['id'], labels)
@@ -171,14 +172,14 @@ if __name__ == "__main__":
         for i, page in enumerate(top_level_pages):
             print(f"{i}: {page['title']}")
 
-        # Get user input for page and label
+        # Get user input for page and labels
         selected_page_index = int(input("Enter the number of the top-level page you want to label: "))
-        label = input("Enter the label you want to add: ")
+        labels = input("Enter the label(s) you want to add (separate multiple labels with spaces): ")
 
         # Validate user input
         if 0 <= selected_page_index < len(top_level_pages):
             selected_page = top_level_pages[selected_page_index]
-            label_manager.cascade_labels(selected_page, label)
+            label_manager.cascade_labels(selected_page, labels)
             # List all pages that were labeled during the process
             label_manager.list_labeled_pages()
         else:
