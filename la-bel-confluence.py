@@ -79,6 +79,46 @@ class ConfluenceLabelManager:
         for title in self.labeled_pages:
             print(f"- {title}")
 
+    def get_all_labels(self):
+        try:
+            all_labels = {}
+            start = 0
+            limit = 200
+            while True:
+                url = f"rest/api/content?spaceKey={self.space_key}&expand=metadata.labels&start={start}&limit={limit}"
+                response = self.confluence.get(url)
+                
+                if not response or 'results' not in response:
+                    break
+                
+                for content in response['results']:
+                    labels = content.get('metadata', {}).get('labels', {}).get('results', [])
+                    for label in labels:
+                        label_id = label.get('id')
+                        label_name = label.get('name')
+                        if label_id and label_name:
+                            key = f"{label_id}:{label_name}"
+                            all_labels[key] = all_labels.get(key, 0) + 1
+                
+                if len(response['results']) < limit:
+                    break
+                
+                start += limit
+
+            return all_labels
+        except Exception as e:
+            print(f"Error fetching labels: {e}")
+            return {}
+
+    def list_labels_sorted(self):
+        all_labels = self.get_all_labels()
+        sorted_labels = sorted(all_labels.items(), key=lambda x: x[1], reverse=True)
+        print("\nAll labels sorted by occurrence:")
+        for i, (label_key, count) in enumerate(sorted_labels, 1):
+            label_id, label_name = label_key.split(':', 1)
+            print(f"{i}. {label_name}, ID: {label_id}, Count: {count}")
+        return sorted_labels
+
 def get_user_action():
     while True:
         action = input("Do you want to (A)dd or (R)emove labels? ").lower()
