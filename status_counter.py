@@ -39,17 +39,15 @@ def extract_color_title_pairs(page_content):
       </ac:structured-macro>
 
     Steps:
-    1. Find each entire status macro block with one regex.
-    2. Within that block, look separately for the 'colour' parameter and 'title' parameter.
-    3. Default color to 'Grey' if no colour parameter is found.
+      1. Capture each status macro block.
+      2. Within that block, search for 'colour' and 'title' parameters.
+      3. Default color to 'Grey' if no colour parameter is found.
     """
-    # 1. Capture the entire content of each status macro
     macro_pattern = r'<ac:structured-macro[^>]+ac:name="status"[^>]*>(.*?)</ac:structured-macro>'
     macro_blocks = re.findall(macro_pattern, page_content, flags=re.DOTALL | re.IGNORECASE)
 
     color_title_pairs = []
     for block in macro_blocks:
-        # 2a. Look for colour parameter
         color_match = re.search(
             r'<ac:parameter[^>]+ac:name="colour"[^>]*>(.*?)</ac:parameter>',
             block,
@@ -57,7 +55,6 @@ def extract_color_title_pairs(page_content):
         )
         color = color_match.group(1).strip() if color_match else "Grey"
 
-        # 2b. Look for title parameter
         title_match = re.search(
             r'<ac:parameter[^>]+ac:name="title"[^>]*>(.*?)</ac:parameter>',
             block,
@@ -82,8 +79,13 @@ def build_status_macro(color, title):
 
 def generate_table_html(status_counts):
     """
-    Generate an HTML table in Confluence storage format. Each row displays a status macro
-    (with the original color & title) and a count of how many times that pair appears.
+    Generate an HTML table in Confluence storage format.
+
+    First section: rows for each (color, title) pair and its occurrence.
+    Second section: aggregated totals by color (ignoring text), with each row displaying
+    a status macro (using the color for both parameters) and the total count for that color.
+
+    The table renders at its default (normal) width.
 
     Args:
         status_counts (Counter): Keys are (color, title) tuples; values are counts.
@@ -94,9 +96,24 @@ def generate_table_html(status_counts):
         "<tbody>"
     )
 
+    # Section 1: Rows by (color, title) pair
     for (color, title), count in status_counts.items():
         status_macro = build_status_macro(color, title)
         table_html += f"<tr><td>{status_macro}</td><td>{count}</td></tr>"
+
+    # Separator row for aggregated totals by color
+    table_html += '<tr><td colspan="2"><strong>Total by Color</strong></td></tr>'
+
+    # Aggregate counts by color (disregarding the text)
+    aggregated_color_counts = {}
+    for (color, title), count in status_counts.items():
+        aggregated_color_counts[color] = aggregated_color_counts.get(color, 0) + count
+
+    # Section 2: Rows for each color aggregate
+    for color, agg_count in aggregated_color_counts.items():
+        # Use the color as both the status text and color in the macro
+        status_macro = build_status_macro(color, color)
+        table_html += f"<tr><td>{status_macro}</td><td>{agg_count}</td></tr>"
 
     table_html += "</tbody></table>"
     return table_html
@@ -122,11 +139,9 @@ def update_page(new_table_html):
             + current_content[end_index:]
         )
     else:
-        # If placeholders aren't found, append them and the table
         new_section = f"\n{begin_marker}\n{new_table_html}\n{end_marker}\n"
         updated_content = current_content + new_section
 
-    # Prepare the JSON payload for the PUT request (incrementing version)
     updated_page = {
         "id": PAGE_ID,
         "type": "page",
@@ -152,23 +167,16 @@ def update_page(new_table_html):
 
 def main():
     try:
-        # 1. Fetch the page content
         page_data = fetch_page()
         page_content = page_data["body"]["storage"]["value"]
 
-        # 2. Extract (color, title) pairs from each status macro
         color_title_pairs = extract_color_title_pairs(page_content)
         if not color_title_pairs:
             print("No status macros found on this page.")
             return
 
-        # 3. Count each unique (color, title) pair
         status_counts = Counter(color_title_pairs)
-
-        # 4. Generate the HTML table with actual color & title macros
         new_table_html = generate_table_html(status_counts)
-
-        # 5. Update the page between placeholders
         update_page(new_table_html)
 
     except Exception as e:
