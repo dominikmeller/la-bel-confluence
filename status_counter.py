@@ -120,15 +120,15 @@ def generate_table_html(status_counts):
 
 def update_page(new_table_html):
     """
-    Insert or replace the content between <!-- LABEL_TABLE_BEGIN --> and <!-- LABEL_TABLE_END -->.
+    Insert or replace the content between <!- LABEL_TABLE_BEGIN !> and <!- LABEL_TABLE_END -!>.
     If these markers do not exist, append them with the new table at the end of the page content.
     """
     page_data = fetch_page()
     current_version = page_data["version"]["number"]
     current_content = page_data["body"]["storage"]["value"]
 
-    begin_marker = "<!-- LABEL_TABLE_BEGIN -->"
-    end_marker = "<!-- LABEL_TABLE_END -->"
+    begin_marker = "<!- LABEL_TABLE_BEGIN -!>"
+    end_marker = "<!- LABEL_TABLE_END -!>"
 
     if begin_marker in current_content and end_marker in current_content:
         start_index = current_content.index(begin_marker) + len(begin_marker)
