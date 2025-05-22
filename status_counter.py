@@ -1,19 +1,81 @@
 import os
 import re
+import sys
 import requests
 from requests.auth import HTTPBasicAuth
 from collections import Counter
 from dotenv import load_dotenv
+from urllib.parse import urlparse, parse_qs
 
 # 1. Load environment variables from .env
 load_dotenv()
 
 CONFLUENCE_URL = os.getenv("CONFLUENCE_URL")             # e.g., https://<your-domain>.atlassian.net/wiki
-PAGE_ID = os.getenv("PAGE_ID")                           # e.g., 123456
 CONFLUENCE_USERNAME = os.getenv("CONFLUENCE_USERNAME")   # e.g., your-email@example.com
 CONFLUENCE_API_TOKEN = os.getenv("CONFLUENCE_API_TOKEN") # Your Confluence API token
 
-# 2. Build URL to fetch page content (storage format + version info)
+# Get page ID from environment variable or command line argument
+PAGE_ID = os.getenv("PAGE_ID")
+PAGE_URL = os.getenv("PAGE_URL")
+
+def get_page_id():
+    """
+    Get the page ID from environment variables, command line arguments, or by parsing a URL.
+    """
+    global PAGE_ID
+    
+    # Check if PAGE_ID is already set
+    if PAGE_ID:
+        return PAGE_ID
+        
+    # Check if a URL was provided in environment variables
+    if PAGE_URL:
+        page_id = extract_page_id_from_url(PAGE_URL)
+        if page_id:
+            PAGE_ID = page_id
+            return PAGE_ID
+    
+    # Check command line arguments
+    if len(sys.argv) > 1:
+        # If argument looks like a URL
+        if sys.argv[1].startswith('http'):
+            page_id = extract_page_id_from_url(sys.argv[1])
+            if page_id:
+                PAGE_ID = page_id
+                return PAGE_ID
+        else:
+            # Assume the argument is a page ID
+            PAGE_ID = sys.argv[1]
+            return PAGE_ID
+    
+    # If we get here, we couldn't determine the page ID
+    print("Error: No page ID provided.")
+    print("Please provide a page ID or URL in one of the following ways:")
+    print("1. Set PAGE_ID environment variable")
+    print("2. Set PAGE_URL environment variable")
+    print("3. Pass page ID as command line argument: python status_counter.py 88342541")
+    print("4. Pass page URL as command line argument: python status_counter.py https://digital-advantics.atlassian.net/wiki/spaces/HSPDev/pages/88342541/Sites+Configuration+PIM+Servers")
+    sys.exit(1)
+
+def extract_page_id_from_url(url):
+    """
+    Extract the page ID from a Confluence URL.
+    """
+    # Pattern for URLs like .../pages/88342541/...
+    page_id_match = re.search(r'/pages/(\d+)/', url)
+    if page_id_match:
+        return page_id_match.group(1)
+    
+    # Try to parse as query parameter
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    if 'pageId' in query_params:
+        return query_params['pageId'][0]
+    
+    return None
+
+# Get the page ID and build the URL to fetch page content
+PAGE_ID = get_page_id()
 GET_PAGE_URL = f"{CONFLUENCE_URL}/rest/api/content/{PAGE_ID}?expand=body.storage,version"
 
 def fetch_page():
@@ -167,6 +229,9 @@ def update_page(new_table_html):
 
 def main():
     try:
+        print(f"Processing Confluence page with ID: {PAGE_ID}")
+        print(f"Using URL: {GET_PAGE_URL}")
+        
         page_data = fetch_page()
         page_content = page_data["body"]["storage"]["value"]
 
@@ -176,9 +241,18 @@ def main():
             return
 
         status_counts = Counter(color_title_pairs)
+        print(f"Found {sum(status_counts.values())} status macros with {len(status_counts)} unique color/title combinations")
+        
         new_table_html = generate_table_html(status_counts)
         update_page(new_table_html)
 
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            print(f"Error: Page with ID {PAGE_ID} not found. Please check if the page ID is correct.")
+        elif e.response.status_code == 401 or e.response.status_code == 403:
+            print("Error: Authentication failed. Please check your Confluence username and API token.")
+        else:
+            print(f"HTTP Error: {e}")
     except Exception as e:
         print(f"An error occurred: {e}")
 
