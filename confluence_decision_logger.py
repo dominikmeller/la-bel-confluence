@@ -264,13 +264,14 @@ class ConfluenceDecisionSync:
             header += f"""<p><strong>Sync Summary:</strong> {len(sync_result.added)} added, {len(sync_result.updated)} updated, {len(sync_result.unchanged)} unchanged</p>"""
         header += "<hr/>"
         
-        # Sort decisions by status (OPEN first, then DECIDED, then others)
-        sorted_decisions = sorted(decisions, key=lambda d: (
-            0 if "OPEN" in d.status.upper() or "IN PROGRESS" in d.status.upper() else 
-            1 if "DECIDED" in d.status.upper() or "APPROVED" in d.status.upper() or "ACCEPTED" in d.status.upper() else 
-            2
-        ))
-        
+        # Sort decisions by date_created (newest first)
+        def _parse_date(decision):
+            try:
+                return datetime.strptime(decision.date_created or "1900-01-01", "%Y-%m-%d")
+            except ValueError:
+                return datetime(1900, 1, 1)
+
+        sorted_decisions = sorted(decisions, key=_parse_date, reverse=True)        
         decision_sections = [self.create_decision_macro_xml(d) for d in sorted_decisions]
         content = header + '\n'.join(decision_sections)
         return content

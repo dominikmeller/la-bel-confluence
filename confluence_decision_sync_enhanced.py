@@ -318,11 +318,18 @@ class ConfluenceDecisionSync:
 
         header += "<hr/>"
 
+        # Sort decisions by date_created (newest first)
+        def _parse_date(decision):
+            try:
+                return datetime.strptime(decision.date_created or "1900-01-01", "%Y-%m-%d")
+            except ValueError:
+                return datetime(1900, 1, 1)
+
+        sorted_decisions = sorted(decisions, key=_parse_date, reverse=True)
         decision_macros = []
-        for decision in decisions:
+        for decision in sorted_decisions:
             decision_xml = self.create_decision_macro_xml(decision)
             decision_macros.append(decision_xml)
-
         # Add spacing between decisions
         content = header + '\n<br/>\n'.join(decision_macros)
 
