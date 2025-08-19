@@ -23,18 +23,18 @@ def get_page_id():
     Get the page ID from environment variables, command line arguments, or by parsing a URL.
     """
     global PAGE_ID
-    
+
     # Check if PAGE_ID is already set
     if PAGE_ID:
         return PAGE_ID
-        
+
     # Check if a URL was provided in environment variables
     if PAGE_URL:
         page_id = extract_page_id_from_url(PAGE_URL)
         if page_id:
             PAGE_ID = page_id
             return PAGE_ID
-    
+
     # Check command line arguments
     if len(sys.argv) > 1:
         # If argument looks like a URL
@@ -47,7 +47,7 @@ def get_page_id():
             # Assume the argument is a page ID
             PAGE_ID = sys.argv[1]
             return PAGE_ID
-    
+
     # If we get here, we couldn't determine the page ID
     print("Error: No page ID provided.")
     print("Please provide a page ID or URL in one of the following ways:")
@@ -65,13 +65,13 @@ def extract_page_id_from_url(url):
     page_id_match = re.search(r'/pages/(\d+)/', url)
     if page_id_match:
         return page_id_match.group(1)
-    
+
     # Try to parse as query parameter
     parsed_url = urlparse(url)
     query_params = parse_qs(parsed_url.query)
     if 'pageId' in query_params:
         return query_params['pageId'][0]
-    
+
     return None
 
 # Get the page ID and build the URL to fetch page content
@@ -82,6 +82,9 @@ def fetch_page():
     """
     Fetch the Confluence page details, including its storage format and version info.
     """
+    if not CONFLUENCE_USERNAME or not CONFLUENCE_API_TOKEN:
+        raise ValueError("CONFLUENCE_USERNAME and CONFLUENCE_API_TOKEN must be set")
+
     response = requests.get(
         GET_PAGE_URL,
         auth=HTTPBasicAuth(CONFLUENCE_USERNAME, CONFLUENCE_API_TOKEN),
@@ -231,7 +234,7 @@ def main():
     try:
         print(f"Processing Confluence page with ID: {PAGE_ID}")
         print(f"Using URL: {GET_PAGE_URL}")
-        
+
         page_data = fetch_page()
         page_content = page_data["body"]["storage"]["value"]
 
@@ -242,7 +245,7 @@ def main():
 
         status_counts = Counter(color_title_pairs)
         print(f"Found {sum(status_counts.values())} status macros with {len(status_counts)} unique color/title combinations")
-        
+
         new_table_html = generate_table_html(status_counts)
         update_page(new_table_html)
 
